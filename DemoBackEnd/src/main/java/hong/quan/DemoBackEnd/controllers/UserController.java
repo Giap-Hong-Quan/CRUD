@@ -4,6 +4,7 @@ import hong.quan.DemoBackEnd.models.User;
 import hong.quan.DemoBackEnd.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,4 +30,23 @@ public class UserController {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
+    @PutMapping("/user/{id}")
+    public User updateUser(@RequestBody User newUser, @PathVariable Long id) {
+        return userRepository.findById(id).map(user -> {
+            user.setUsername(newUser.getUsername());
+            user.setName(newUser.getName());
+            user.setEmail(newUser.getEmail());
+            return userRepository.save(user);
+        }).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        if (!userRepository.existsById(id)) {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        userRepository.deleteById(id);
+        return ResponseEntity.noContent().build(); // Trả về 204 (Xóa thành công, không có nội dung)
+    }
+
+
 }

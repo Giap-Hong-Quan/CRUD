@@ -1,9 +1,22 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const Home = () => {
   const [listUser, setListUser] = useState([]);
+  const { id } = useParams();
+
+  const deleteUser = async (id) => {
+    if (window.confirm("Bạn có chắc muốn xóa người dùng này không?")) {
+      try {
+        await axios.delete(`http://localhost:8080/user/${id}`);
+        loadListUser();
+      } catch (error) {
+        console.error("Lỗi khi xóa user:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     // goi API qua axios
     //cách 1:
@@ -45,13 +58,30 @@ const Home = () => {
               return (
                 <tr key={user.id}>
                   <th scope="row">{user.id}</th>
-                  <td>{user.userName}</td>
+                  <td>{user.username}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>
-                    <Link className="btn btn-primary mx-2" to={`/viewuser/${user.id}`}>View</Link>
-                    <button className="btn btn-outline-primary mx-2">Edit</button>
-                    <button className="btn btn-danger mx-2">Delete</button>
+                    <Link
+                      className="btn btn-primary mx-2"
+                      to={`/viewuser/${user.id}`}
+                    >
+                      View
+                    </Link>
+                    <Link
+                      className="btn btn-outline-primary mx-2"
+                      to={`/edituser/${user.id}`}
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => {
+                        deleteUser(user.id);
+                      }}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               );
